@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang='en'>
 <head>
-    <meta charset="UTF-8">
+    <meta charset='UTF-8'>
     <title>BarChart</title>
-    <script src="https://d3js.org/d3.v4.min.js" type="text/JavaScript"></script>
+    <script src='https://d3js.org/d3.v4.min.js' type='text/JavaScript'></script>
 </head>
 <body>
 
@@ -24,6 +24,8 @@
     d3.scale().linear(), makes a direct relationship between one range of numbers and another. Scales have a 
     domain setting and a range setting that accept arrays, with the domain determining the ramp of values being 
     transformed and the range referring to the ramp to which those values are being transformed.
+
+    Scale functions are key to determining position, size, and color of elements in data visualization. 
   -->
 
     <p>The default setting for any SVG shape is black fill with no stroke.
@@ -64,6 +66,15 @@
     </p>
     <svg id='viz7' width:500px height:500px> </svg>
     
+    <p>The cities.csv data drawn as a bar chart using the maximum value of the population attribute in the domain 
+    setting of the scale. 
+    </p>
+    <svg id='viz8'</svg>
+
+    <p>Creating a barchart from the Twitter data requires a bit more transformation. To create a barchart will need to 
+       nest data and count the objects that are nested.   
+    </p>
+    <svg id='viz9'</svg>
     
     <!-- viz1-->
     <script>
@@ -91,7 +102,7 @@
     .style('fill', 'blue')
     .style('stroke', 'red')
     //.style('stroke-width', '1px')
-    .style('opacity', .25)
+    .style('opacity', .25)//shows gradiants/shades of of color
     }) ()
     </script>
 
@@ -109,8 +120,8 @@
     .style('stroke', 'red')
     //.style('stroke-width', '1px')
     .style('opacity', .25)
-    .attr('x', function(d,i) {return i*10}) //setting the x position of each rectangle based on the i value (position in array)
-                                            //multiply i by the width of the rectangle to give space between recs
+    .attr('x', function(d,i) {return i*10}) /*setting the x position of each rectangle based on the i value (position in array)
+                                            multiply i by the width of the rectangle to provide space between recs */
     }) ()
     </script>
 
@@ -129,9 +140,10 @@
     //.style('stroke-width', '1px')
     .style('opacity', .25)
     .attr('x', function(d,i) {return i*10})
-    .attr("y", function(d) {return 100 - d;}) //setting the y position of the rectangle to the desired y position minus the height of 
-                                            //the rectangle.  the rec is drawn from bottom to top from that y position.  
-                                            //100 is the largest value in the array
+    .attr('y', function(d) {return 100 - d;}) /*drawing rec from top to bottom.  
+                                             setting the y position of the rectangle to the desired y position minus the height of 
+                                            the rectangle.  the rec is drawn from bottom to top from that y position.  
+                                            100 is the largest value in the array */
   }) ()
   </script>
   
@@ -153,11 +165,11 @@
     //.style('stroke-width', '1px')
     .style('opacity', .25)
     .attr('x', function(d,i) {return i*10})
-    .attr("y", function(d) {return 100 - yScale(d);})//yScale to determine the height and y position of the rectangles
+    .attr('y', function(d) {return 100 - yScale(d);})//yScale to determine the height and y position of the rectangles
   }) () 
   </script>
 
-<!--viz6-->
+<!--viz6 polylinear scale-->
   <script>
   (function(){
 
@@ -176,11 +188,11 @@
     //.style('stroke-width', '1px')
     .style('opacity', .25)
     .attr('x', function(d,i) {return i*10})
-    .attr("y", function(d) {return 100 - yScale(d);})//yScale to determine the height and y position of the rectangles
+    .attr('y', function(d) {return 100 - yScale(d);})//yScale to determine the height and y position of the rectangles
   }) () 
   </script>
 
-  <!--viz7-->
+  <!--viz7 with .clamp() function-->
   <script>
   (function(){
 
@@ -209,9 +221,104 @@
     //.style('stroke-width', '1px')
     .style('opacity', .25)
     .attr('x', function(d,i) {return i*10})
-    .attr("y", function(d) {return 100 - yScale(d);})//yScale to determine the height and y position of the rectangles
+    .attr('y', function(d) {return 100 - yScale(d);})//yScale to determine the height and y position of the rectangles
   }) () 
   </script>
+
+  <!-- viz8 Loading cities.csv data, casting it, measuring it, and displaying it as a bar chart-->
+  <script>
+
+  /*Data is loaded as an array of JSON objects, initialized as 'data'.
+    maxPopulation variable is the maximum value of population attribute and is used 
+    in the domain setting of the scale.  error is optional. 
+
+    Position: Each rectangle is drawn on the x-axis based upon its position in the array as it was loaded.
+              San Fran and Fresno are the 1st two cities, with Sao Paolo being the last. Because rectangles
+              are drawn from the top-left down, the y position is offset to the same value as the height. 
+
+    Layout:   Margins are created by offseting the rectangles 20px from the top as well as creating a scale with 
+              with a max range value that factors in that margin plus a 20px margin for the bottom. */ 
+  (function () {
+    d3.csv('cities.csv', function(error,data) {dataViz(data)})
+  function dataViz(incomingData) {
+    let maxPopulation = d3.max(incomingData, function(el) {
+      return parseInt(el.population)})	
+
+    let yScale = d3.scaleLinear().domain([0,maxPopulation]).range([0,460])
+    d3.select('#viz8').attr('style','height: 480px; width: 600px;')
+    d3.select('#viz8')
+      .selectAll('rect')
+      .data(incomingData)
+      .enter()
+      .append('rect')
+      .attr('width', 50)
+      .attr('height', function(d) {return yScale(parseInt(d.population))}) //yScale to determine the height and y position of the rectangles
+      .attr('x', function(d,i) {return i * 60}) /*setting the x position of each rectangle based its position in array and multiplying to provide space */                                        
+      .attr('y', function(d) {return 480 - yScale(parseInt(d.population))})  //drawing rec from top to bottom. 
+      .style('fill', '#FE9922')
+      .style('stroke', '#9A8B7A')
+      .style('stroke-width', '1px')
+      .style('opacity', .25);
+}
+  }) ()   
+  </script>
+
+
+  <!-- viz9 Loading tweets.json file-->
+  <script>
+  /*
+  loading tweets.json file requires more transformation. By nesting data and counting the objects that 
+  are nested, we can create a bar chart out of hierarchical data. 
+  
+  Use d3.nest() to gather the tweets under the person making them, and then use the length of that array to create 
+  a bar chart of the number of tweets. 
+
+  nested Tweets[0]
+    key: 'Al'
+    numTweets: 3
+  
+  nested Tweets[1]
+    key: 'Roy'
+    numTweets: 4
+
+  nested Tweets[2]
+    key: 'Pris'
+    numTweets: 2   
+
+  nested Tweets[3]
+    key: 'Sam'
+    numTweets: 1
+ */ 
+  (function () {
+    d3.json('tweets.json', function(error,data) {dataViz(data.tweets)})	
+  function dataViz(incomingData) {
+    let nestedTweets = d3.nest()
+    .key(function (el) {return el.user})
+    .entries(incomingData)
+    nestedTweets.forEach(function (el) {  
+    el.numTweets = el.values.length	
+    })
+  let maxTweets = d3.max(nestedTweets, function(el) {return el.numTweets})
+  let yScale = d3.scaleLinear().domain([0,maxTweets]).range([0,100])
+  d3.select('#viz9')
+  .selectAll('rect')
+  .data(nestedTweets)
+  .enter()
+  .append('rect')
+  .attr('width', 50)
+  .attr('height', function(d) {return yScale(d.numTweets);})
+  .attr('x', function(d,i) {return i * 60;})
+  .attr('y', function(d) {return 100 - yScale(d.numTweets);})
+  .style('fill', 'grey')
+  .style('stroke', 'red')
+  .style('stroke-width', '1px').style('opacity', .25);
+}
+    
+  }) ()   
+  </script>
+
+
+
 
 
 
