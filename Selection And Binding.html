@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BarChart</title>
+    <script src="https://d3js.org/d3.v4.min.js" type="text/JavaScript"></script>
+</head>
+<body>
+
+  <!--  
+    d3.select() = selects the svg
+    .selectAll() = CSS identifier that corresponds to part of DOM. creates an empty selection for the rectangles
+    .data() = associate an array with the selected DOM element(s). 
+    .enter() = binds data to selection/DOM
+    .append() = appends/adds data to DOM
+    .attr() = changes styles and attributes
+
+
+    SCALING:
+    A D3 scale has two primary functions: .domain() and .range(), both of which expect arrays and which must 
+    have arrays of the same length to get the right results. The array in .domain() indicates the series of 
+    values being mapped to .range().
+    
+    d3.scale().linear(), makes a direct relationship between one range of numbers and another. Scales have a 
+    domain setting and a range setting that accept arrays, with the domain determining the ramp of values being 
+    transformed and the range referring to the ramp to which those values are being transformed.
+  -->
+
+    <p>The default setting for any SVG shape is black fill with no stroke.
+       All the rectangles overlap with each other because they have the same
+       default x and y positions. </p>
+    <svg id='viz1' width:500px height:500px></svg>
+    
+    
+    <p>Adding fill, stroke and opacity settings to see the overlapping rectangles. </p>
+    <svg id='viz2' width:500px height:500px></svg>
+
+    <p>Can use the array position of a data value to place visual elements. 
+      Setting the x position of each rectangle based its position in the array.</p>
+    <svg id='viz3' width:500px height:500px> </svg>
+
+    <p>Adjusting y position so rectangle is drawn from bottom to top.</p>
+    <svg id='viz4' width:500px height:500px> </svg>
+
+    <p>If values in dataset do not correspond with height and width of svg, element, 
+    (ie, dataset value is greater than height of svg) values will not chart properly.
+    For this reason, its best to use scaling functions to normalize the values for display. Chart uses linear scale 
+    </p>
+    <svg id='viz5' width:500px height:500px> </svg>
+
+    <p>When dataset has wildly diverging values, makes more sense to use a polylinear scale.  A polylinear
+    scale is a linear scale with multiple points in the domanin and range.  Can also use polylinear scale 
+    if interested in certain values. Scale updated to polylinear scale to graph values of interest 
+    between 1-100, 100-1000. 
+    </p>
+    <svg id='viz6' width:500px height:500px> </svg>
+
+    <p>There maybe a cuttoff value after which it is less important to express how large a datapoint is. 
+    If for example, only interested in showing range of data values between 0 and 500, while emphasizing 
+    the variation at the 0 to 100 level. </p>
+
+    <p>When the maximum value in the domain is lower than the maximum value in the dataset, use the 
+    .clamp() function to set all such values to the maximum (for greater) or minimum (for lesser) range value,  
+    </p>
+    <svg id='viz7' width:500px height:500px> </svg>
+    
+    
+    <!-- viz1-->
+    <script>
+    (function() {
+    d3.select('#viz1')
+      .selectAll('rect')
+      .data([15, 50, 22, 8, 100, 10])
+      .enter()
+      .append('rect')
+      .attr('width', 10) //10px 
+      .attr('height', function(d) {return d}) //function uses values in array to determine height of rectangles
+    }) ()
+    </script>
+    
+    <!-- viz2-->
+    <script>
+    (function() {
+    d3.select('#viz2')
+    .selectAll('rect')
+    .data([15, 50, 22, 8, 100, 10])
+    .enter()
+    .append('rect')
+    .attr('width', 10)
+    .attr('height', function(d) {return d})
+    .style('fill', 'blue')
+    .style('stroke', 'red')
+    //.style('stroke-width', '1px')
+    .style('opacity', .25)
+    }) ()
+    </script>
+
+    <!--viz3-->
+    <script>
+    (function() {
+    d3.select('#viz3')
+    .selectAll('rect')
+    .data([15, 50, 22, 8, 100, 10])
+    .enter()
+    .append('rect')
+    .attr('width', 10)
+    .attr('height', function(d){return d})
+    .style('fill', 'blue')
+    .style('stroke', 'red')
+    //.style('stroke-width', '1px')
+    .style('opacity', .25)
+    .attr('x', function(d,i) {return i*10}) //setting the x position of each rectangle based on the i value (position in array)
+                                            //multiply i by the width of the rectangle to give space between recs
+    }) ()
+    </script>
+
+    <!--viz4-->
+    <script>
+    (function() {
+    d3.select('#viz4')
+    .selectAll('rect')
+    .data([15, 50, 22, 8, 100, 10])
+    .enter()
+    .append('rect')
+    .attr('width', 10)
+    .attr('height', function(d){return d})
+    .style('fill', 'blue')
+    .style('stroke', 'red')
+    //.style('stroke-width', '1px')
+    .style('opacity', .25)
+    .attr('x', function(d,i) {return i*10})
+    .attr("y", function(d) {return 100 - d;}) //setting the y position of the rectangle to the desired y position minus the height of 
+                                            //the rectangle.  the rec is drawn from bottom to top from that y position.  
+                                            //100 is the largest value in the array
+  }) ()
+  </script>
+  
+  <!--viz5-->
+  <script>
+  (function(){
+
+   let yScale = d3.scaleLinear().domain([0,24500]).range([0,100])
+   
+   d3.select('#viz5')
+    .selectAll('rect')
+    .data([14, 68, 24500, 430, 19, 1000, 5555])
+    .enter()
+    .append('rect')
+    .attr('width', 10)
+    .attr('height', function(d){return yScale(d)})//yScale to determine the height and y position of the rectangles
+    .style('fill', 'blue')
+    .style('stroke', 'red')
+    //.style('stroke-width', '1px')
+    .style('opacity', .25)
+    .attr('x', function(d,i) {return i*10})
+    .attr("y", function(d) {return 100 - yScale(d);})//yScale to determine the height and y position of the rectangles
+  }) () 
+  </script>
+
+<!--viz6-->
+  <script>
+  (function(){
+
+  //Adjusting to polylinear scale. Interested in values between 1-100, 100-1000 and occasional outliers.
+   let yScale = d3.scaleLinear().domain([0,100,1000,24500]).range([0,50,75,100])
+   
+   d3.select('#viz6')
+    .selectAll('rect')
+    .data([14, 68, 24500, 430, 19, 1000, 5555])
+    .enter()
+    .append('rect')
+    .attr('width', 10)
+    .attr('height', function(d){return yScale(d)})//yScale to determine the height and y position of the rectangles
+    .style('fill', 'blue')
+    .style('stroke', 'red')
+    //.style('stroke-width', '1px')
+    .style('opacity', .25)
+    .attr('x', function(d,i) {return i*10})
+    .attr("y", function(d) {return 100 - yScale(d);})//yScale to determine the height and y position of the rectangles
+  }) () 
+  </script>
+
+  <!--viz7-->
+  <script>
+  (function(){
+
+  /*
+  For viz7, interested in showing range of data values between 0-500, while emphasizing the variation 
+  at the 0-100 level (reflected in yScale variable). The linear scale has a maximum value in the domain that 
+  is lower than the maximum value in the dataset (500 max in domain is lower than 5555 in dataset). 
+  By default, a D3 scale continues to extrapolate values greater than the maximum domain value and less 
+  than the minimum domain value.  
+
+  To set all such values to the maximum (for greater) or minimum (for lesser) range value, need to use the 
+  .clamp() function. 
+  */
+
+   let yScale = d3.scaleLinear().domain([0,100,500]).range([0,50,100]).clamp(true)
+   
+   d3.select('#viz7')
+    .selectAll('rect')
+    .data([14, 68, 24500, 430, 19, 1000, 5555])
+    .enter()
+    .append('rect')
+    .attr('width', 10)
+    .attr('height', function(d){return yScale(d)})//yScale to determine the height and y position of the rectangles
+    .style('fill', 'blue')
+    .style('stroke', 'red')
+    //.style('stroke-width', '1px')
+    .style('opacity', .25)
+    .attr('x', function(d,i) {return i*10})
+    .attr("y", function(d) {return 100 - yScale(d);})//yScale to determine the height and y position of the rectangles
+  }) () 
+  </script>
+
+
+
+</body>
+</html>
