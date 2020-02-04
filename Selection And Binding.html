@@ -71,7 +71,7 @@
     </p>
     <svg id='viz8'</svg>
 
-    <p>Creating a barchart from the Twitter data requires a bit more transformation. To create a barchart will need to 
+    <p>Creating a barchart from the Twitter data requires a bit more transformation. To create a barchart, will need to 
        nest data and count the objects that are nested.   
     </p>
     <svg id='viz9'</svg>
@@ -228,9 +228,18 @@
   <!-- viz8 Loading cities.csv data, casting it, measuring it, and displaying it as a bar chart-->
   <script>
 
-  /*Data is loaded as an array of JSON objects, initialized as 'data'.
-    maxPopulation variable is the maximum value of population attribute and is used 
-    in the domain setting of the scale.  error is optional. 
+  /*Data is loaded as an array of JSON objects, initialized as 'data'. csv() takes 2 arguments, the string 
+    representing the path the csv file is located and an anonymous function to be used as a 'callback function'.
+    The callback function is called after the csv file has been loaded into memory. When called, the anonymous 
+    function is provided the dataset. csv() is loading the cities file, once the file has been loaded, the callback 
+    function is called and the anonymous function recieves the cities dataset.  Now that the anonymous function has the
+    dataset, the anonymous function calls the dataViz function and passes the dataset as an argument called data. 
+    error is optional in the anonymous function. 
+    
+    The dataViz function receives the cities dataset and creates a variable called maxPopulation. The dataViz 
+    function creates a variable called maxPopulation; and the variable maxPopulation also has a function that 
+    converts the default string column entitled Population to an integer. The maxPopulation 
+    variable is the maximum value of the population attribute and is used in the domain setting of the scale.   
 
     Position: Each rectangle is drawn on the x-axis based upon its position in the array as it was loaded.
               San Fran and Fresno are the 1st two cities, with Sao Paolo being the last. Because rectangles
@@ -239,7 +248,7 @@
     Layout:   Margins are created by offseting the rectangles 20px from the top as well as creating a scale with 
               with a max range value that factors in that margin plus a 20px margin for the bottom. */ 
   (function () {
-    d3.csv('cities.csv', function(error,data) {dataViz(data)})
+    d3.csv('cities.csv', function(error,data) {dataViz(data)}) 
   function dataViz(incomingData) {
     let maxPopulation = d3.max(incomingData, function(el) {
       return parseInt(el.population)})	
@@ -271,7 +280,20 @@
   are nested, we can create a bar chart out of hierarchical data. 
   
   Use d3.nest() to gather the tweets under the person making them, and then use the length of that array to create 
-  a bar chart of the number of tweets. 
+  a bar chart of the number of tweets. Fundamentally, d3.nest() is about taking a flat structure and turning it into
+  a nested one. The syntax to group by name is:
+
+    let nestedTweets = d3.nest()
+    .key(function (el) {return el.user})
+    .entries(incomingData)
+
+  The varialbe nestedTweets will result in a nested data structure where nestedTweets will contain an array of objects.
+  Each object will have a key property; which is what is used as the grouping value using the .key function. In the 
+  .key function, using value 'el' and returning the user value from the json file (el.user).  Whats returned are the 
+  values associated with the user property as the key (users, Al, Roy, Pris, Sam). 
+  entries(incomingData) is the data from json file.
+
+  Data is summarized to allow for counting of tweets: 
 
   nested Tweets[0]
     key: 'Al'
@@ -290,7 +312,7 @@
     numTweets: 1
  */ 
   (function () {
-    d3.json('tweets.json', function(error,data) {dataViz(data.tweets)})	
+    d3.json('tweets.json', function(error,data) {dataViz(data.tweets)})	//notice 'data.tweets' with json file
   function dataViz(incomingData) {
     let nestedTweets = d3.nest()
     .key(function (el) {return el.user})
@@ -316,9 +338,6 @@
     
   }) ()   
   </script>
-
-
-
 
 
 
